@@ -24,12 +24,12 @@ client.on("messageCreate", message => {
     .setDescription(`**esp :flag_es: **
                     A la hora de hacer el pago **aceptas** los <#1060201345073815612>
                     Para realizar el pago debe enviar el pago por amigos y familiares y sin concepto, cuando lo haya realizado deberá mandar captura
-                    **(En caso de que algo se incumpla no se te dará el rol)**
+                    **(En caso de que algo se incumpla no se te dará el producto)**
 
                    ** eng :flag_gb:**
                     By making the payment, you accept the <#1060201345073815612> .
                     To make the payment, you must send it as friends and family without any description. Once you have done this, you must send a screenshot.
-                    **(In case any of these conditions are not met, the role will not be given to you)**
+                    **(In case any of these conditions are not met, the product will not be given to you)**
 
 
                     https://www.paypal.com/paypalme/GFXDREKO `)
