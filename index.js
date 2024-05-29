@@ -41,10 +41,10 @@ client.on("messageCreate", async message => {
       message.channel.send({ embeds: [paypal] });
     } else {
       try {
-        await message.reply("No tienes permisos para usar este comando.");
+        await message.author.send("No tienes permisos para usar este comando.");
         await message.delete();
       } catch (error) {
-        console.error("Error al eliminar el mensaje o enviar la respuesta:", error);
+        console.error("Error al enviar el mensaje directo o eliminar el mensaje:", error);
       }
     }
   }
@@ -77,10 +77,10 @@ client.on("messageCreate", async message => {
       message.channel.send({ embeds: [bizum] });
     } else {
       try {
-        await message.reply("No tienes permisos para usar este comando.");
+        await message.author.send("No tienes permisos para usar este comando.");
         await message.delete();
       } catch (error) {
-        console.error("Error al eliminar el mensaje o enviar la respuesta:", error);
+        console.error("Error al enviar el mensaje directo o eliminar el mensaje:", error);
       }
     }
   }
