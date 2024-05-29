@@ -1,4 +1,4 @@
-const keep_alive = require(`./keep_alive.js`);
+const keep_alive = require('./keep_alive.js');
 const express = require('express');
 const app = express();
 
@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 const Discord = require("discord.js");
 const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
 
-client.on("messageCreate", message => {
+client.on("messageCreate", async message => {
   if (message.content === "ping") {
     message.channel.send("pong");
   }
@@ -40,7 +40,12 @@ client.on("messageCreate", message => {
 
       message.channel.send({ embeds: [paypal] });
     } else {
-      message.reply("No tienes permisos para usar este comando.");
+      try {
+        await message.reply("No tienes permisos para usar este comando.");
+        await message.delete();
+      } catch (error) {
+        console.error("Error al eliminar el mensaje o enviar la respuesta:", error);
+      }
     }
   }
 
@@ -71,10 +76,14 @@ client.on("messageCreate", message => {
 
       message.channel.send({ embeds: [bizum] });
     } else {
-      message.reply("No tienes permisos para usar este comando.");
+      try {
+        await message.reply("No tienes permisos para usar este comando.");
+        await message.delete();
+      } catch (error) {
+        console.error("Error al eliminar el mensaje o enviar la respuesta:", error);
+      }
     }
   }
 });
 
 client.login(process.env.token);
-
