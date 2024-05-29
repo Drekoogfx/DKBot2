@@ -11,14 +11,36 @@ app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES"] });
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"] });
 
 // Cola de usuarios
 let queue = [];
 let lastQueueMessageId = null;
 const queueChannelId = '1171224716506300446'; // ID del canal de la cola
+const founderId = '429377907216089088'; // ID del fundador
+const exemptCategoryId = '828363533401849896'; // ID de la categoría exenta
 
 client.on("messageCreate", async message => {
+  // Evitar hacer nada si el mensaje proviene de un bot
+  if (message.author.bot) return;
+
+  // Verificar si el mensaje menciona al fundador y si el canal no está en la categoría exenta
+  if (message.mentions.users.has(founderId) && message.channel.parentId !== exemptCategoryId) {
+    const member = message.guild.members.cache.get(message.author.id);
+
+    // Aplicar un timeout de 5 minutos (300000 ms)
+    try {
+      await member.timeout(300000, "No mencionar al fundador");
+      await member.send(`**ESP** :flag_es:
+No menciones al fundador 👿         ||Solo puedes mencionar en ticket||
+**EN** :flag_gb:
+Do not mention the founder 👿         ||You can only mention in a ticket||`);
+      await message.delete(); // Borrar el mensaje que menciona al fundador
+    } catch (error) {
+      console.error("Error al aplicar el timeout, enviar el mensaje o borrar el mensaje:", error);
+    }
+  }
+
   if (message.content === "ping") {
     message.channel.send("pong");
   }
@@ -111,15 +133,47 @@ client.on("messageCreate", async message => {
     }
 
     const args = message.content.split(" ").slice(1);
+    const position = parseInt(args[0]);
     const user = message.mentions.users.first();
-    if (!user) return message.channel.send("Por favor, menciona al usuario.");
 
-    const reason = args.slice(1).join(" ") || "No se especificó una razón";
+    if (!user) {
+      return message.channel.send("Por favor, menciona al usuario.");
+    }
 
-    // Añadir usuario a la cola con razón
-    queue.push({ user, reason });
+    const reason = args.slice(1).filter(arg => !arg.startsWith("<@")).join(" ") || "No se especificó una razón";
+
+    if (isNaN(position)) {
+      // Añadir usuario a la última posición de la cola
+      queue.push({ user, reason });
+    } else {
+      // Añadir usuario a la cola en la posición especificada
+      queue.splice(position - 1, 0, { user, reason });
+    }
 
     // Mostrar la cola en un embed en el canal especificado
+    const queueChannel = await client.channels.fetch(queueChannelId);
+    displayQueue(queueChannel);
+
+    message.delete(); // Borra el mensaje que invocó el comando
+  }
+
+  if (message.content.startsWith(".dequeue")) {
+    // Verificar si el usuario tiene permisos de administrador
+    if (!message.member.permissions.has("ADMINISTRATOR")) {
+      return message.channel.send("No tienes permisos para usar este comando.");
+    }
+
+    const args = message.content.split(" ").slice(1);
+    const position = parseInt(args[0]);
+
+    if (isNaN(position) || position < 1 || position > queue.length) {
+      return message.channel.send("Por favor, proporciona una posición válida dentro de la cola.");
+    }
+
+    // Eliminar el usuario de la cola en la posición especificada
+    queue.splice(position - 1, 1);
+
+    // Mostrar la cola actualizada en un embed en el canal especificado
     const queueChannel = await client.channels.fetch(queueChannelId);
     displayQueue(queueChannel);
 
