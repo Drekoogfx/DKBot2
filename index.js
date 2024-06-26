@@ -31,11 +31,7 @@ client.on("messageCreate", async message => {
     // Aplicar un timeout de 5 minutos (300000 ms)
     try {
       await member.timeout(300000, "No mencionar al fundador");
-      await member.send(`**ESP** 🇪🇸
-No menciones al fundador 👿 ||Solo puedes mencionar en ticket||
-
-**EN** 🇬🇧
-Do not mention the founder 👿 ||You can only mention in a ticket||`);
+      await member.send(`**ESP** 🇪🇸\nNo menciones al fundador 👿 ||Solo puedes mencionar en ticket||\n\n**EN** 🇬🇧\nDo not mention the founder 👿 ||You can only mention in a ticket||`);
       await message.delete(); // Borrar el mensaje que menciona al fundador
     } catch (error) {
       console.error("Error al aplicar el timeout, enviar el mensaje o borrar el mensaje:", error);
@@ -51,17 +47,7 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     if (message.member.permissions.has("ADMINISTRATOR")) {
       let paypal = new Discord.MessageEmbed()
         .setTitle("Pago mediante PayPal")
-        .setDescription(`**ESP 🇪🇸**
-                    A la hora de hacer el pago **aceptas** los <#1060201345073815612>.
-                    Para realizar el pago debe enviar el pago por amigos y familiares y sin concepto, cuando lo haya realizado deberá mandar captura.
-                    **(En caso de que algo se incumpla no se te dará el producto)**
-
-                   **EN 🇬🇧**
-                    By making the payment, you accept the <#1060201345073815612>.
-                    To make the payment, you must send it as friends and family without any description. Once you have done this, you must send a screenshot.
-                    **(In case any of these conditions are not met, the product will not be given to you)**
-
-                    https://www.paypal.com/paypalme/GFXDREKO`)
+        .setDescription(`**ESP 🇪🇸**\nA la hora de hacer el pago **aceptas** los <#1060201345073815612>.\nPara realizar el pago debe enviar el pago por amigos y familiares y sin concepto, cuando lo haya realizado deberá mandar captura.\n**(En caso de que algo se incumpla no se te dará el producto)**\n\n**EN 🇬🇧**\nBy making the payment, you accept the <#1060201345073815612>.\nTo make the payment, you must send it as friends and family without any description. Once you have done this, you must send a screenshot.\n**(In case any of these conditions are not met, the product will not be given to you)**\n\nhttps://www.paypal.com/paypalme/GFXDREKO`)
         .setFooter("No se admiten devoluciones")
         .setColor("#FFFFFF")
         .setThumbnail("https://pngimg.com/uploads/paypal/paypal_PNG7.png");
@@ -89,22 +75,7 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     if (message.member.permissions.has("ADMINISTRATOR")) {
       let bizum = new Discord.MessageEmbed()
         .setTitle("Pago mediante Bizum")
-        .setDescription(`**ESP 🇪🇸**
-
-    > - Cantidad mínima: **25€ eur**
-    > 
-    > - Número: **657 153 522**
-    > 
-    > - Envíar **captura de pantalla** al realizar el pago
-
-    **EN 🇬🇧**
-
-    > - Minimum amount: **25€ EUR**
-    > 
-    > - Number: **657 153 522**
-    > 
-    > - Send a **screenshot** when making the payment
-    `)
+        .setDescription(`**ESP 🇪🇸**\n\n> - Cantidad mínima: **25€ eur**\n> \n> - Número: **657 153 522**\n> \n> - Envíar **captura de pantalla** al realizar el pago\n\n**EN 🇬🇧**\n\n> - Minimum amount: **25€ EUR**\n> \n> - Number: **657 153 522**\n> \n> - Send a **screenshot** when making the payment`)
         .setFooter("No se admiten devoluciones")
         .setColor("#FFFFFF")
         .setThumbnail("https://upload.wikimedia.org/wikipedia/commons/2/24/Bizum.png");
@@ -128,8 +99,8 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
   }
 
   if (message.content.startsWith(".addqueue")) {
-    // Verificar si el usuario tiene permisos de administrador
-    if (!message.member.permissions.has("ADMINISTRATOR")) {
+    // Permitir el uso solo al fundador
+    if (message.author.id !== founderId) {
       return message.channel.send("No tienes permisos para usar este comando.");
     }
 
@@ -162,8 +133,8 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
   }
 
   if (message.content.startsWith(".dequeue")) {
-    // Verificar si el usuario tiene permisos de administrador
-    if (!message.member.permissions.has("ADMINISTRATOR")) {
+    // Permitir el uso solo al fundador
+    if (message.author.id !== founderId) {
       return message.channel.send("No tienes permisos para usar este comando.");
     }
 
@@ -219,34 +190,29 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
   }
 
   if (message.content.startsWith(".say")) {
-    // Verificar si el usuario tiene permisos de administrador
-    if (message.member.permissions.has("ADMINISTRATOR")) {
-      const args = message.content.split(" ").slice(1);
-      const user = message.mentions.users.first();
-      const text = args.slice(1).join(" ");
+    // Permitir el uso solo al fundador
+    if (message.author.id !== founderId) {
+      return message.channel.send("No tienes permisos para usar este comando.");
+    }
 
-      if (!user) {
-        return message.channel.send("Por favor, menciona al usuario.");
-      }
+    const args = message.content.split(" ").slice(1);
+    const user = message.mentions.users.first();
+    const text = args.slice(1).join(" ");
 
-      if (!text) {
-        return message.channel.send("Por favor, proporciona el mensaje a enviar.");
-      }
+    if (!user) {
+      return message.channel.send("Por favor, menciona al usuario.");
+    }
 
-      try {
-        await user.send(text);
-        message.channel.send(`Mensaje enviado a ${user.tag}.`);
-      } catch (error) {
-        console.error("Error al enviar el mensaje:", error);
-        message.channel.send("Hubo un error al intentar enviar el mensaje.");
-      }
-    } else {
-      try {
-        await message.author.send("No tienes permisos para usar este comando.");
-        await message.delete();
-      } catch (error) {
-        console.error("Error al enviar el mensaje directo o eliminar el mensaje:", error);
-      }
+    if (!text) {
+      return message.channel.send("Por favor, proporciona el mensaje a enviar.");
+    }
+
+    try {
+      await user.send(text);
+      message.channel.send(`Mensaje enviado a ${user.tag}.`);
+    } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
+      message.channel.send("Hubo un error al intentar enviar el mensaje.");
     }
   }
 });
