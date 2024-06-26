@@ -151,8 +151,8 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
       queue.splice(position - 1, 0, { user, reason });
     }
 
-    // Notificar al usuario su nueva posición en la cola
-    notifyUserInQueue(user);
+    // Notificar a todos los usuarios sus nuevas posiciones en la cola
+    notifyAllUsersInQueue();
 
     // Mostrar la cola en un embed en el canal especificado
     const queueChannel = await client.channels.fetch(queueChannelId);
@@ -173,8 +173,6 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     if (isNaN(position) || position < 1 || position > queue.length) {
       return message.channel.send("Por favor, proporciona una posición válida dentro de la cola.");
     }
-
-    const removedUser = queue[position - 1].user;
 
     // Eliminar el usuario de la cola en la posición especificada
     queue.splice(position - 1, 1);
@@ -236,7 +234,7 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
       }
 
       try {
-        await user.send(`**ESP** 🇪🇸\n${text}\n\n**EN** 🇬🇧\n${text}`);
+        await user.send(text);
         message.channel.send(`Mensaje enviado a ${user.tag}.`);
       } catch (error) {
         console.error("Error al enviar el mensaje:", error);
