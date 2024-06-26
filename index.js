@@ -25,16 +25,16 @@ client.on("messageCreate", async message => {
   if (message.author.bot) return;
 
   // Verificar si el mensaje menciona al fundador y si el canal no está en la categoría exenta
-  if (message.mentions.users.has(founderId) && message.channel.parentId !== exemptCategoryId) {
+  if (message.mentions.users.has(founderId) && !exemptCategoryIds.includes(message.channel.parentId)) {
     const member = message.guild.members.cache.get(message.author.id);
 
     // Aplicar un timeout de 5 minutos (300000 ms)
     try {
       await member.timeout(300000, "No mencionar al fundador");
       await member.send(`**ESP** :flag_es:
-No menciones al fundador 👿         ||Solo puedes mencionar en ticket||
+No menciones al fundador 👿 ||Solo puedes mencionar en ticket||
 **EN** :flag_gb:
-Do not mention the founder 👿         ||You can only mention in a ticket||`);
+Do not mention the founder 👿 ||You can only mention in a ticket||`);
       await message.delete(); // Borrar el mensaje que menciona al fundador
     } catch (error) {
       console.error("Error al aplicar el timeout, enviar el mensaje o borrar el mensaje:", error);
@@ -200,6 +200,38 @@ Do not mention the founder 👿         ||You can only mention in a ticket||`);
       } catch (error) {
         console.error("Error al borrar los mensajes:", error);
         message.reply("Hubo un error al intentar borrar los mensajes.");
+      }
+    } else {
+      try {
+        await message.author.send("No tienes permisos para usar este comando.");
+        await message.delete();
+      } catch (error) {
+        console.error("Error al enviar el mensaje directo o eliminar el mensaje:", error);
+      }
+    }
+  }
+
+  if (message.content.startsWith(".say")) {
+    // Verificar si el usuario tiene permisos de administrador
+    if (message.member.permissions.has("ADMINISTRATOR")) {
+      const args = message.content.split(" ").slice(1);
+      const user = message.mentions.users.first();
+      const text = args.slice(1).join(" ");
+
+      if (!user) {
+        return message.channel.send("Por favor, menciona al usuario.");
+      }
+
+      if (!text) {
+        return message.channel.send("Por favor, proporciona el mensaje a enviar.");
+      }
+
+      try {
+        await user.send(text);
+        message.channel.send(`Mensaje enviado a ${user.tag}.`);
+      } catch (error) {
+        console.error("Error al enviar el mensaje:", error);
+        message.channel.send("Hubo un error al intentar enviar el mensaje.");
       }
     } else {
       try {
