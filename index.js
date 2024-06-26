@@ -31,9 +31,10 @@ client.on("messageCreate", async message => {
     // Aplicar un timeout de 5 minutos (300000 ms)
     try {
       await member.timeout(300000, "No mencionar al fundador");
-      await member.send(`**ESP** :flag_es:
+      await member.send(`**ESP** 🇪🇸
 No menciones al fundador 👿 ||Solo puedes mencionar en ticket||
-**EN** :flag_gb:
+
+**EN** 🇬🇧
 Do not mention the founder 👿 ||You can only mention in a ticket||`);
       await message.delete(); // Borrar el mensaje que menciona al fundador
     } catch (error) {
@@ -50,12 +51,12 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     if (message.member.permissions.has("ADMINISTRATOR")) {
       let paypal = new Discord.MessageEmbed()
         .setTitle("Pago mediante PayPal")
-        .setDescription(`**ESP :flag_es:**
+        .setDescription(`**ESP 🇪🇸**
                     A la hora de hacer el pago **aceptas** los <#1060201345073815612>.
                     Para realizar el pago debe enviar el pago por amigos y familiares y sin concepto, cuando lo haya realizado deberá mandar captura.
                     **(En caso de que algo se incumpla no se te dará el producto)**
 
-                   **ENG :flag_gb:**
+                   **EN 🇬🇧**
                     By making the payment, you accept the <#1060201345073815612>.
                     To make the payment, you must send it as friends and family without any description. Once you have done this, you must send a screenshot.
                     **(In case any of these conditions are not met, the product will not be given to you)**
@@ -88,7 +89,7 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     if (message.member.permissions.has("ADMINISTRATOR")) {
       let bizum = new Discord.MessageEmbed()
         .setTitle("Pago mediante Bizum")
-        .setDescription(`**ESP** :flag_es:
+        .setDescription(`**ESP 🇪🇸**
 
     > - Cantidad mínima: **25€ eur**
     > 
@@ -96,13 +97,13 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
     > 
     > - Envíar **captura de pantalla** al realizar el pago
 
-    ** ENG :flag_gb:**
+    **EN 🇬🇧**
 
     > - Minimum amount: **25€ EUR**
     > 
-   > - Number: **657 153 522**
+    > - Number: **657 153 522**
     > 
-   > - Send a **screenshot** when making the payment
+    > - Send a **screenshot** when making the payment
     `)
         .setFooter("No se admiten devoluciones")
         .setColor("#FFFFFF")
@@ -235,7 +236,7 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
       }
 
       try {
-        await user.send(text);
+        await user.send(`**ESP** 🇪🇸\n${text}\n\n**EN** 🇬🇧\n${text}`);
         message.channel.send(`Mensaje enviado a ${user.tag}.`);
       } catch (error) {
         console.error("Error al enviar el mensaje:", error);
@@ -281,7 +282,7 @@ async function notifyUserInQueue(user) {
   const position = queue.findIndex(entry => entry.user.id === user.id) + 1;
   if (position) {
     try {
-      await user.send(`Tu posición en la cola se ha actualizado. Ahora estás en la posición ${position}.`);
+      await user.send(`**ESP** 🇪🇸\nTu posición en la cola se ha actualizado. Ahora estás en la posición ${position}.\n\n**EN** 🇬🇧\nYour position in the queue has been updated. You are now in position ${position}.`);
     } catch (error) {
       console.error("Error al enviar el mensaje directo al usuario:", error);
     }
@@ -291,7 +292,7 @@ async function notifyUserInQueue(user) {
 async function notifyAllUsersInQueue() {
   for (const [index, entry] of queue.entries()) {
     try {
-      await entry.user.send(`Tu posición en la cola se ha actualizado. Ahora estás en la posición ${index + 1}.`);
+      await entry.user.send(`**ESP** 🇪🇸\nTu posición en la cola se ha actualizado. Ahora estás en la posición ${index + 1}.\n\n**EN** 🇬🇧\nYour position in the queue has been updated. You are now in position ${index + 1}.`);
     } catch (error) {
       console.error(`Error al enviar el mensaje directo al usuario ${entry.user.tag}:`, error);
     }
