@@ -150,6 +150,9 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
       queue.splice(position - 1, 0, { user, reason });
     }
 
+    // Notificar al usuario su nueva posición en la cola
+    notifyUserInQueue(user);
+
     // Mostrar la cola en un embed en el canal especificado
     const queueChannel = await client.channels.fetch(queueChannelId);
     displayQueue(queueChannel);
@@ -170,8 +173,13 @@ Do not mention the founder 👿 ||You can only mention in a ticket||`);
       return message.channel.send("Por favor, proporciona una posición válida dentro de la cola.");
     }
 
+    const removedUser = queue[position - 1].user;
+
     // Eliminar el usuario de la cola en la posición especificada
     queue.splice(position - 1, 1);
+
+    // Notificar a todos los usuarios sus nuevas posiciones en la cola
+    notifyAllUsersInQueue();
 
     // Mostrar la cola actualizada en un embed en el canal especificado
     const queueChannel = await client.channels.fetch(queueChannelId);
@@ -267,6 +275,27 @@ async function displayQueue(channel) {
   // Enviar el embed al canal y almacenar el ID del mensaje
   const queueMessage = await channel.send({ embeds: [embed] });
   lastQueueMessageId = queueMessage.id;
+}
+
+async function notifyUserInQueue(user) {
+  const position = queue.findIndex(entry => entry.user.id === user.id) + 1;
+  if (position) {
+    try {
+      await user.send(`Tu posición en la cola se ha actualizado. Ahora estás en la posición ${position}.`);
+    } catch (error) {
+      console.error("Error al enviar el mensaje directo al usuario:", error);
+    }
+  }
+}
+
+async function notifyAllUsersInQueue() {
+  for (const [index, entry] of queue.entries()) {
+    try {
+      await entry.user.send(`Tu posición en la cola se ha actualizado. Ahora estás en la posición ${index + 1}.`);
+    } catch (error) {
+      console.error(`Error al enviar el mensaje directo al usuario ${entry.user.tag}:`, error);
+    }
+  }
 }
 
 client.login(process.env.token);
