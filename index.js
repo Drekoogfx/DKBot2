@@ -18,7 +18,7 @@ let queue = [];
 let lastQueueMessageId = null;
 const queueChannelId = '1171224716506300446'; // ID del canal de la cola
 const founderId = '429377907216089088'; // ID del fundador
-const exemptCategoryIds = ['828363533401849896', '1232721077130498088']; // ID de la categoría exenta
+const exemptCategoryIds = ['828363533401849896', '1232721077130498088', '1060199155391270944']; // ID de la categoría exenta
 
 client.on("messageCreate", async message => {
   // Evitar hacer nada si el mensaje proviene de un bot
