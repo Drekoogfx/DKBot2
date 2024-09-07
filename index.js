@@ -264,5 +264,3 @@ async function notifyAllUsersInQueue() {
 }
 
 client.login(process.env.token);
-message.txt
-11 KB
