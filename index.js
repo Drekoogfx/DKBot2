@@ -11,7 +11,7 @@ app.get('/', (req, res) => {
   res.send('Hello world!');
 });
 
-const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS"] });
+const client = new Discord.Client({ intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS", "GUILD_MESSAGE_REACTIONS"] });
 
 // Cola de usuarios
 let queue = [];
@@ -199,67 +199,59 @@ client.on("messageCreate", async message => {
     const user = message.mentions.users.first();
     const text = args.slice(1).join(" ");
 
-    if (!user) {
-      return message.channel.send("Por favor, menciona al usuario.");
+    if (!user || !text) {
+      return message.channel.send("Uso correcto: `.say @usuario texto`");
     }
 
-    if (!text) {
-      return message.channel.send("Por favor, proporciona el mensaje a enviar.");
-    }
+    user.send(text);
+    message.delete();
+  }
 
-    try {
-      await user.send(text);
-      message.channel.send(`Mensaje enviado a ${user.tag}.`);
-    } catch (error) {
-      console.error("Error al enviar el mensaje:", error);
-      message.channel.send("Hubo un error al intentar enviar el mensaje.");
-    }
+  if (message.content.startsWith("/review")) {
+    const reviewEmoji = message.guild.emojis.cache.get('1171222638488639628'); // Usar el ID del emoji
+    message.channel.send(`${reviewEmoji} || Gracias por tu reseña. ||`);
+    message.delete();
   }
 });
 
-async function displayQueue(channel) {
-  // Borrar el mensaje anterior de la cola si existe
-  if (lastQueueMessageId) {
-    try {
-      const lastQueueMessage = await channel.messages.fetch(lastQueueMessageId);
-      if (lastQueueMessage) {
-        await lastQueueMessage.delete();
-      }
-    } catch (error) {
-      console.error("Error al borrar el mensaje anterior de la cola:", error);
-    }
-  }
-
-  // Crear el embed
-  const embed = new Discord.MessageEmbed()
-    .setTitle("Cola de Usuarios")
-    .setDescription(queue.map((entry, index) => `${index + 1}. ${entry.user} - ${entry.reason}`).join("\n"))
-    .setColor("#FFFFFF")
-    .setThumbnail("https://cdn.discordapp.com/attachments/1115062933114851369/1245421684597723136/Sin-tituldsadao-1.png?ex=6658b0d4&is=66575f54&hm=c0b681f1b3c2000a81292ba152c5cf6682d617750a2d9e6f4ae19bc105720114&");
-
-  // Enviar el embed al canal y almacenar el ID del mensaje
-  const queueMessage = await channel.send({ embeds: [embed] });
-  lastQueueMessageId = queueMessage.id;
-}
-
-async function notifyUserInQueue(user) {
-  const position = queue.findIndex(entry => entry.user.id === user.id) + 1;
-  if (position) {
-    try {
-      await user.send(`**ESP** 🇪🇸\nTu posición en la cola se ha actualizado. Ahora estás en la posición ${position}.\n\n**EN** 🇬🇧\nYour position in the queue has been updated. You are now in position ${position}.`);
-    } catch (error) {
-      console.error("Error al enviar el mensaje directo al usuario:", error);
-    }
-  }
-}
-
+// Notificar a todos los usuarios sus nuevas posiciones en la cola
 async function notifyAllUsersInQueue() {
-  for (const [index, entry] of queue.entries()) {
+  for (let i = 0; i < queue.length; i++) {
+    const { user, reason } = queue[i];
     try {
-      await entry.user.send(`**ESP** 🇪🇸\nTu posición en la cola se ha actualizado. Ahora estás en la posición ${index + 1}.\n\n**EN** 🇬🇧\nYour position in the queue has been updated. You are now in position ${index + 1}.`);
+      await user.send(`Estás en la posición #${i + 1} en la cola. Razón: ${reason}`);
     } catch (error) {
-      console.error(`Error al enviar el mensaje directo al usuario ${entry.user.tag}:`, error);
+      console.error(`Error al enviar mensaje a ${user.tag}:`, error);
     }
+  }
+}
+
+// Mostrar la cola actualizada en un embed
+async function displayQueue(queueChannel) {
+  const queueEmbed = new Discord.MessageEmbed()
+    .setTitle("Cola de usuarios")
+    .setColor("#00FF00");
+
+  if (queue.length === 0) {
+    queueEmbed.setDescription("La cola está vacía.");
+  } else {
+    queueEmbed.setDescription(
+      queue
+        .map((entry, index) => `${index + 1}. ${entry.user.tag} - ${entry.reason}`)
+        .join("\n")
+    );
+  }
+
+  try {
+    if (lastQueueMessageId) {
+      const lastQueueMessage = await queueChannel.messages.fetch(lastQueueMessageId);
+      if (lastQueueMessage) await lastQueueMessage.delete();
+    }
+
+    const newQueueMessage = await queueChannel.send({ embeds: [queueEmbed] });
+    lastQueueMessageId = newQueueMessage.id;
+  } catch (error) {
+    console.error("Error al mostrar la cola:", error);
   }
 }
 
